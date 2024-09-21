@@ -55,7 +55,7 @@ with gr.Blocks() as caption_ui:
     with gr.Tab("Prompts"):
         system_prompt, captioning_prompt = load_prompts(prompts_dir)
         system_prompt_box = gr.Textbox(interactive=True, lines=15, label="System prompt", value=system_prompt)
-        captioning_prompt_box = gr.Textbox(interactive=True, lines=3, label="Captioning prompt",
+        captioning_prompt_box = gr.Textbox(interactive=True, lines=15, label="Captioning prompt",
                                            value=captioning_prompt)
         save_prompts_button = gr.Button("Save prompts")
 
