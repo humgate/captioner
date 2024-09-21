@@ -32,6 +32,14 @@ def load_prompts(prompts_dir):
         captioning_prompt = file.read()
     return system_prompt, captioning_prompt
 
+def load_caption(image_file):
+    caption_file = get_caption_file(image_file)
+    if os.path.exists(caption_file):
+        with open(caption_file, 'r') as file:
+           caption = file.read()
+           return caption
+    return None
+
 
 def save_prompts(prompts_dir, system_prompt, captioning_prompt):
     with open(f"{prompts_dir}/system_prompt.md", 'w') as file:

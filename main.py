@@ -14,7 +14,7 @@ def generate_caption(prompt, system, image):
         images=[image],
         stream=False
     )['response']
-    return result.replace('"', '')
+    return result.replace('"', '').strip()
 
 
 def generate_caption_for_image(image_path):
@@ -72,6 +72,12 @@ with gr.Blocks() as caption_ui:
         fn=lambda folder, number: get_image_paths(folder)[int(number)],
         inputs=[images_folder_box, image_number_box],
         outputs=img
+    )
+
+    file_path_box.change(
+        fn=lambda image_file: load_caption(image_file),
+        inputs=file_path_box,
+        outputs=edited_caption_box
     )
 
     next_button.click(
