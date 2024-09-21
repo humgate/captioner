@@ -1,38 +1,9 @@
-import os
-
 import ollama
 import gradio as gr
 
-from util import load_prompts, save_prompts, save_caption_for_image
+from util import *
 
 prompts_dir = "prompts"
-
-
-
-def get_image_paths(directory):
-    return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith(('.png', '.jpg', '.jpeg'))]
-
-
-def get_next_image(directory, img_number_str):
-    images = get_image_paths(directory)
-    current_img_number = int(img_number_str)
-    if current_img_number < len(images) - 1:
-        current_img_number += 1
-        current_img_number_text = str(current_img_number)
-    else:
-        current_img_number_text = img_number_str
-    return images[current_img_number], current_img_number_text
-
-
-def get_prev_image(directory, img_number_str):
-    images = get_image_paths(directory)
-    current_img_number = int(img_number_str)
-    if current_img_number > 0:
-        current_img_number -= 1
-        current_img_number_text = str(current_img_number)
-    else:
-        current_img_number_text = img_number_str
-    return images[current_img_number], current_img_number_text
 
 
 def generate_caption(prompt, system, image):
@@ -57,7 +28,8 @@ with gr.Blocks() as caption_ui:
             with gr.Column(scale=4):
                 img = gr.Image(type="filepath", show_label=True)
             with gr.Column(scale=6):
-                images_folder_box = gr.Textbox(interactive=True, label="Images folder", info="Enter images folder path and hit Enter")
+                images_folder_box = gr.Textbox(interactive=True, label="Images folder",
+                                               info="Enter images folder path and hit Enter")
                 with gr.Row():
                     file_path_box = gr.Textbox(label="Image", scale=9)
                     image_number_box = gr.Textbox(value="-1", scale=1, label="number", max_length=2)
@@ -70,6 +42,10 @@ with gr.Blocks() as caption_ui:
                     copy_button = gr.Button("Copy for editing", scale=1)
                 edited_caption_box = gr.Textbox(interactive=True, lines=3, label="Edited caption")
                 save_caption_button = gr.Button("Save caption")
+                alert_box = gr.Markdown()
+                with gr.Row():
+                    overwrite_button = gr.Button("Confirm overwrite", visible=False, scale=1)
+                    cancel_button = gr.Button("Cancel", visible=False, scale=1)
     with gr.Tab("Prompts"):
         system_prompt, captioning_prompt = load_prompts(prompts_dir)
         system_prompt_box = gr.Textbox(interactive=True, lines=15, label="System prompt", value=system_prompt)
@@ -115,8 +91,21 @@ with gr.Blocks() as caption_ui:
     )
 
     save_caption_button.click(
-        fn=lambda image_file, caption: save_caption_for_image(image_file, caption),
+        fn=check_save,
         inputs=[file_path_box, edited_caption_box],
+        outputs=[alert_box, overwrite_button, cancel_button]
+    )
+
+    overwrite_button.click(
+        fn=confirm_save,
+        inputs=[file_path_box, edited_caption_box, gr.State(True)],
+        outputs=[alert_box, overwrite_button, cancel_button]
+    )
+
+    cancel_button.click(
+        fn=cancel_save,
+        inputs=file_path_box,
+        outputs=[alert_box, overwrite_button, cancel_button]
     )
 
 if __name__ == '__main__':
