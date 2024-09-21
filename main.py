@@ -3,7 +3,7 @@ import os
 import ollama
 import gradio as gr
 
-from util import load_prompts, save_prompts
+from util import load_prompts, save_prompts, save_caption_for_image
 
 prompts_dir = "prompts"
 
@@ -69,13 +69,13 @@ with gr.Blocks() as caption_ui:
                     generate_button = gr.Button("Generate caption", scale=9)
                     copy_button = gr.Button("Copy for editing", scale=1)
                 edited_caption_box = gr.Textbox(interactive=True, lines=3, label="Edited caption")
-                save_button = gr.Button("Save edited caption")
+                save_caption_button = gr.Button("Save caption")
     with gr.Tab("Prompts"):
         system_prompt, captioning_prompt = load_prompts(prompts_dir)
         system_prompt_box = gr.Textbox(interactive=True, lines=15, label="System prompt", value=system_prompt)
         captioning_prompt_box = gr.Textbox(interactive=True, lines=3, label="Captioning prompt",
                                            value=captioning_prompt)
-        save_prompts_button = gr.Button("Save prompts caption")
+        save_prompts_button = gr.Button("Save prompts")
 
     # Handlers
     generate_button.click(fn=generate_caption_for_image, inputs=[img], outputs=[generated_caption_box])
@@ -111,8 +111,12 @@ with gr.Blocks() as caption_ui:
 
     save_prompts_button.click(
         fn=lambda sys_prompt, capt_prompt: save_prompts(prompts_dir, sys_prompt, capt_prompt),
-        inputs=[system_prompt_box, captioning_prompt_box],
-        outputs=None
+        inputs=[system_prompt_box, captioning_prompt_box]
+    )
+
+    save_caption_button.click(
+        fn=lambda image_file, caption: save_caption_for_image(image_file, caption),
+        inputs=[file_path_box, edited_caption_box],
     )
 
 if __name__ == '__main__':
