@@ -6,6 +6,7 @@ for multiple images for training datasets
 - **Image folder setting**: Set images folder path.
 - **Image navigation**: Navigate to next/previous image in the images folder.
 - **Image preview**: Preview selected image.
+- **Existing caption**: Displays existing caption from caption file if it exists
 - **Caption generation**: Generate caption for selected image using the LLaVA model.
 - **Manual editing**: Manually edit generated captions directly in the UI.
 - **Save caption**: Save edited captions as `.txt` files with the same name as the image.
