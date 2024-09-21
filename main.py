@@ -18,7 +18,13 @@ def generate_caption(prompt, system, image):
 
 
 def generate_caption_for_image(image_path):
-    return generate_caption(captioning_prompt, system_prompt, image_path)
+    try:
+        result = generate_caption(captioning_prompt, system_prompt, image_path)
+        if not result:
+            return "Error: No caption generated. Check Ollama running correctly with LLama model"
+        return result
+    except Exception as e:
+        return f"Error generating caption: {str(e)}"
 
 
 # Gradio UI
