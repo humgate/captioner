@@ -32,7 +32,7 @@ with gr.Blocks() as caption_ui:
     with gr.Tab("Captioning"):
         with gr.Row():
             with gr.Column(scale=4):
-                img = gr.Image(type="filepath", show_label=True)
+                img = gr.Image(type="filepath", show_label=True, interactive=False)
             with gr.Column(scale=6):
                 images_folder_box = gr.Textbox(interactive=True, label="Images folder",
                                                info="Enter images folder path and hit Enter")
