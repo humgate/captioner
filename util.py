@@ -1,6 +1,7 @@
 import os
 
 import gradio as gr
+import ollama
 
 
 def get_image_paths(directory):
@@ -86,3 +87,15 @@ def cancel_save(image_file):
     return (f"Operation cancelled. File '{caption_file}' not overwritten.",
             gr.update(visible=False),
             gr.update(visible=False))
+
+
+def get_local_models(default_model):
+    model_names = [model['name'] for model in ollama.list()['models']]
+    resulted_default_model = None
+    for name in model_names:
+        if name == default_model:
+            resulted_default_model = name
+            break
+    if resulted_default_model is None and model_names:
+        resulted_default_model = model_names[0]
+    return model_names, resulted_default_model

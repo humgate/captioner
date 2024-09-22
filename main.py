@@ -4,11 +4,13 @@ import gradio as gr
 from util import *
 
 prompts_dir = "prompts"
+default_model = 'llava:13b'
+translate_model= 'llama3.1'
 
 
-def generate_caption(prompt, system, image):
+def generate_caption(prompt, system, image, model):
     result = ollama.generate(
-        model='llava',
+        model=model,
         prompt=prompt,
         system=system,
         images=[image],
@@ -17,14 +19,18 @@ def generate_caption(prompt, system, image):
     return result.replace('"', '').strip()
 
 
-def generate_caption_for_image(image_path):
+def generate_caption_for_image(image_path, model):
     try:
-        result = generate_caption(captioning_prompt, system_prompt, image_path)
+        result = generate_caption(captioning_prompt, system_prompt, image_path, model)
         if not result:
             return "Error: No caption generated. Check Ollama running correctly with LLama model"
         return result
     except Exception as e:
         return f"Error generating caption: {str(e)}"
+
+def set_model(another_model):
+    model = another_model
+
 
 
 # Gradio UI
@@ -58,9 +64,17 @@ with gr.Blocks() as caption_ui:
         captioning_prompt_box = gr.Textbox(interactive=True, lines=15, label="Captioning prompt",
                                            value=captioning_prompt)
         save_prompts_button = gr.Button("Save prompts")
+    with gr.Tab("Model"):
+        model_names, default = get_local_models(default_model)
+        model_dropdown = gr.Dropdown(choices=model_names, label="Model", value=default, interactive=True)
+
 
     # Handlers
-    generate_button.click(fn=generate_caption_for_image, inputs=[img], outputs=[generated_caption_box])
+    generate_button.click(
+        fn=generate_caption_for_image,
+        inputs=[img, model_dropdown],
+        outputs=[generated_caption_box]
+    )
 
     images_folder_box.submit(
         fn=get_next_image,
