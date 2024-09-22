@@ -9,6 +9,7 @@ for multiple images for training datasets
 - **Existing caption**: Displays existing caption from caption file if it exists
 - **Caption generation**: Generate caption for selected image using the LLaVA model.
 - **Manual editing**: Manually edit generated captions directly in the UI.
+- **Translate caption**: Translate caption to another language. Set in Settings Tab 
 - **Save caption**: Save edited captions as `.txt` files with the same name as the image.
 ## Requirements
 - Python 3.10+
@@ -33,5 +34,6 @@ python main.py
 - Generate captions: Click "Generate Caption" to create a caption for the currently displayed image.
 - Edit captions: Click "Copy for editing" to copy generated caption into edit field. Modify the generated caption 
 if necessary.
+- Translate edited caption: Shift + Enter to translate Edited caption.
 - Save caption: Click "Save caption" to save the caption as a .txt file in the same folder as the image.
 - Image navigation: Use the UI to navigate to the next or previous image in the directory.
