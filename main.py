@@ -1,23 +1,12 @@
-import ollama
-import gradio as gr
+import subprocess
 
 from util import *
 
 prompts_dir = "prompts"
-default_model = 'llava:13b'
+captioning_model = 'llava:13b'
 translate_model = 'llama3.1:latest'
 system_prompt, captioning_prompt, translate_prompt = load_prompts(prompts_dir)
-
-
-def generate(prompt, system, image, model):
-    result = ollama.generate(
-        model=model,
-        prompt=prompt,
-        system=system,
-        images=[image],
-        stream=False
-    )['response']
-    return result.replace('"', '').strip()
+google_translate_destination = 'ru'
 
 
 def generate_caption_for_image(image_path, model):
@@ -34,21 +23,6 @@ def generate_caption_for_image(image_path, model):
         return result
     except Exception as e:
         return f"Error generating caption: {str(e)}"
-
-
-def translate(text, model):
-    prompt = f"{translate_prompt}{text}"
-    try:
-        result = ollama.generate(
-            model=model,
-            prompt=prompt,
-            stream=False
-        )['response'].replace('"', '').strip()
-        if not result:
-            return "Error: No translation caption generated. Check Ollama running correctly with LLama model"
-        return result
-    except Exception as e:
-        return f"Error generating translation: {str(e)}"
 
 
 # Gradio UI
@@ -70,7 +44,9 @@ with gr.Blocks() as caption_ui:
                 with gr.Row():
                     generate_button = gr.Button("Generate caption", scale=9)
                     copy_button = gr.Button("Copy for editing", scale=1)
-                edited_caption_box = gr.Textbox(interactive=True, lines=3, label="Edited caption")
+                edited_caption_box = gr.Textbox(
+                    interactive=True, lines=3, label="Edited caption", info="Shift + Enter to translate"
+                )
                 translated_caption_box = gr.Textbox(interactive=True, lines=3, label="Translated caption")
                 save_caption_button = gr.Button("Save caption")
                 alert_box = gr.Markdown()
@@ -78,15 +54,27 @@ with gr.Blocks() as caption_ui:
                     overwrite_button = gr.Button("Confirm overwrite", visible=False, scale=1)
                     cancel_button = gr.Button("Cancel", visible=False, scale=1)
     with gr.Tab("Prompts"):
-        system_prompt_box = gr.Textbox(interactive=True, lines=15, label="System prompt", value=system_prompt)
-        captioning_prompt_box = gr.Textbox(interactive=True, lines=15, label="Captioning prompt",
-                                           value=captioning_prompt)
+        system_prompt_box = gr.Textbox(
+            interactive=True, lines=10, label="System prompt", value=system_prompt
+        )
+        captioning_prompt_box = gr.Textbox(
+            interactive=True, lines=10, label="Captioning prompt", value=captioning_prompt
+        )
+        translate_prompt_box = gr.Textbox(
+            interactive=True, lines=10, label="Translation prompt", value=translate_prompt
+        )
         save_prompts_button = gr.Button("Save prompts")
-    with gr.Tab("Model"):
-        model_names, default = get_local_models(default_model)
-        model_dropdown = gr.Dropdown(choices=model_names, label="Model", value=default, interactive=True)
-        model_names, default = get_local_models(translate_model)
-        translate_model_dropdown = gr.Dropdown(choices=model_names, label="Model", value=default, interactive=True)
+    with gr.Tab("Settings"):
+        model_names, default = get_local_models(captioning_model)
+        model_dropdown = gr.Dropdown(
+            choices=model_names, label="Captioning model", value=default, interactive=True
+        )
+        translate_dest_box = gr.Textbox(
+            interactive=True,
+            label="Translation destination language",
+            value=google_translate_destination,
+            info="Destination language code, for ex. 'ru'"
+        )
 
     # Handlers
     generate_button.click(
@@ -131,8 +119,8 @@ with gr.Blocks() as caption_ui:
     )
 
     save_prompts_button.click(
-        fn=lambda sys_prompt, capt_prompt: save_prompts(prompts_dir, sys_prompt, capt_prompt),
-        inputs=[system_prompt_box, captioning_prompt_box]
+        fn=lambda system, captioning, translation: save_prompts(prompts_dir, system, captioning, translation),
+        inputs=[system_prompt_box, captioning_prompt_box, translate_prompt_box]
     )
 
     save_caption_button.click(
@@ -154,10 +142,16 @@ with gr.Blocks() as caption_ui:
     )
 
     edited_caption_box.submit(
-        fn=translate,
-        inputs=[edited_caption_box, translate_model_dropdown],
+        fn=translate_with_deep_translator_service,
+        inputs=[edited_caption_box, translate_dest_box],
         outputs=translated_caption_box
     )
 
 if __name__ == '__main__':
-    caption_ui.launch()
+    flask_process = subprocess.Popen(['python', 'flask_translate_service.py'])
+    try:
+        caption_ui.launch()
+    finally:
+        flask_process.terminate()
+        flask_process.wait()  # O
+        print("Flask service terminated")

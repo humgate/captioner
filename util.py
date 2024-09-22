@@ -2,6 +2,7 @@ import os
 
 import gradio as gr
 import ollama
+import requests
 
 
 def get_image_paths(directory):
@@ -44,11 +45,13 @@ def load_caption(image_file):
     return None
 
 
-def save_prompts(prompts_dir, system_prompt, captioning_prompt):
+def save_prompts(prompts_dir, system_prompt, captioning_prompt, translation_prompt):
     with open(f"{prompts_dir}/system_prompt.md", 'w') as file:
         file.write(system_prompt)
     with open(f"{prompts_dir}/captioning_prompt.md", 'w') as file:
         file.write(captioning_prompt)
+    with open(f"{prompts_dir}/translation_prompt.md", 'w') as file:
+        file.write(translation_prompt)
 
 
 def get_caption_file(image_file):
@@ -101,3 +104,9 @@ def get_local_models(default_model):
     if resulted_default_model is None and model_names:
         resulted_default_model = model_names[0]
     return model_names, resulted_default_model
+
+
+def translate_with_deep_translator_service(text, target_language):
+    url = 'http://localhost:5000/translate'
+    response = requests.post(url, json={'text': text}, params={'dest_lang': target_language})
+    return response.json().get('translated_text', 'Translation failed.')

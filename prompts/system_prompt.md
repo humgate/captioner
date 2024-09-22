@@ -1,1 +1,1 @@
-Act like an investigator, describe identified features - exactly what you see in the picture. Do not include assumptions, guesses, metaphors
+Act like an investigator, describe features you see in image. Do not include assumptions, guesses, metaphors
