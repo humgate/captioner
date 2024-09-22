@@ -31,7 +31,9 @@ def load_prompts(prompts_dir):
         system_prompt = file.read()
     with open(f"{prompts_dir}/captioning_prompt.md", 'r') as file:
         captioning_prompt = file.read()
-    return system_prompt, captioning_prompt
+    with open(f"{prompts_dir}/translation_prompt.md", 'r') as file:
+        translate_prompt = file.read()
+    return system_prompt, captioning_prompt, translate_prompt
 
 def load_caption(image_file):
     caption_file = get_caption_file(image_file)

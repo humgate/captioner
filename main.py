@@ -5,10 +5,11 @@ from util import *
 
 prompts_dir = "prompts"
 default_model = 'llava:13b'
-translate_model= 'llama3.1'
+translate_model = 'llama3.1:latest'
+system_prompt, captioning_prompt, translate_prompt = load_prompts(prompts_dir)
 
 
-def generate_caption(prompt, system, image, model):
+def generate(prompt, system, image, model):
     result = ollama.generate(
         model=model,
         prompt=prompt,
@@ -21,16 +22,33 @@ def generate_caption(prompt, system, image, model):
 
 def generate_caption_for_image(image_path, model):
     try:
-        result = generate_caption(captioning_prompt, system_prompt, image_path, model)
+        result = ollama.generate(
+            model=model,
+            prompt=captioning_prompt,
+            system=system_prompt,
+            images=[image_path],
+            stream=False
+        )['response'].replace('"', '').strip()
         if not result:
-            return "Error: No caption generated. Check Ollama running correctly with LLama model"
+            return "Error: No caption generated. Check Ollama running correctly with LLaVA model"
         return result
     except Exception as e:
         return f"Error generating caption: {str(e)}"
 
-def set_model(another_model):
-    model = another_model
 
+def translate(text, model):
+    prompt = f"{translate_prompt}{text}"
+    try:
+        result = ollama.generate(
+            model=model,
+            prompt=prompt,
+            stream=False
+        )['response'].replace('"', '').strip()
+        if not result:
+            return "Error: No translation caption generated. Check Ollama running correctly with LLama model"
+        return result
+    except Exception as e:
+        return f"Error generating translation: {str(e)}"
 
 
 # Gradio UI
@@ -53,13 +71,13 @@ with gr.Blocks() as caption_ui:
                     generate_button = gr.Button("Generate caption", scale=9)
                     copy_button = gr.Button("Copy for editing", scale=1)
                 edited_caption_box = gr.Textbox(interactive=True, lines=3, label="Edited caption")
+                translated_caption_box = gr.Textbox(interactive=True, lines=3, label="Translated caption")
                 save_caption_button = gr.Button("Save caption")
                 alert_box = gr.Markdown()
                 with gr.Row():
                     overwrite_button = gr.Button("Confirm overwrite", visible=False, scale=1)
                     cancel_button = gr.Button("Cancel", visible=False, scale=1)
     with gr.Tab("Prompts"):
-        system_prompt, captioning_prompt = load_prompts(prompts_dir)
         system_prompt_box = gr.Textbox(interactive=True, lines=15, label="System prompt", value=system_prompt)
         captioning_prompt_box = gr.Textbox(interactive=True, lines=15, label="Captioning prompt",
                                            value=captioning_prompt)
@@ -67,7 +85,8 @@ with gr.Blocks() as caption_ui:
     with gr.Tab("Model"):
         model_names, default = get_local_models(default_model)
         model_dropdown = gr.Dropdown(choices=model_names, label="Model", value=default, interactive=True)
-
+        model_names, default = get_local_models(translate_model)
+        translate_model_dropdown = gr.Dropdown(choices=model_names, label="Model", value=default, interactive=True)
 
     # Handlers
     generate_button.click(
@@ -132,6 +151,12 @@ with gr.Blocks() as caption_ui:
         fn=cancel_save,
         inputs=file_path_box,
         outputs=[alert_box, overwrite_button, cancel_button]
+    )
+
+    edited_caption_box.submit(
+        fn=translate,
+        inputs=[edited_caption_box, translate_model_dropdown],
+        outputs=translated_caption_box
     )
 
 if __name__ == '__main__':
