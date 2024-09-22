@@ -32,26 +32,23 @@ def load_prompts(prompts_dir):
         system_prompt = file.read()
     with open(f"{prompts_dir}/captioning_prompt.md", 'r') as file:
         captioning_prompt = file.read()
-    with open(f"{prompts_dir}/translation_prompt.md", 'r') as file:
-        translate_prompt = file.read()
-    return system_prompt, captioning_prompt, translate_prompt
+    return system_prompt, captioning_prompt
+
 
 def load_caption(image_file):
     caption_file = get_caption_file(image_file)
     if os.path.exists(caption_file):
         with open(caption_file, 'r') as file:
-           caption = file.read()
-           return caption
+            caption = file.read()
+            return caption
     return None
 
 
-def save_prompts(prompts_dir, system_prompt, captioning_prompt, translation_prompt):
+def save_prompts(prompts_dir, system_prompt, captioning_prompt):
     with open(f"{prompts_dir}/system_prompt.md", 'w') as file:
         file.write(system_prompt)
     with open(f"{prompts_dir}/captioning_prompt.md", 'w') as file:
         file.write(captioning_prompt)
-    with open(f"{prompts_dir}/translation_prompt.md", 'w') as file:
-        file.write(translation_prompt)
 
 
 def get_caption_file(image_file):
@@ -107,6 +104,6 @@ def get_local_models(default_model):
 
 
 def translate_with_deep_translator_service(text, target_language):
-    url = 'http://localhost:5000/translate'
-    response = requests.post(url, json={'text': text}, params={'dest_lang': target_language})
+    flask_url = f"http://localhost:{os.getenv('FLASK_PORT', '5000')}/translate"
+    response = requests.post(flask_url, json={'text': text}, params={'dest_lang': target_language})
     return response.json().get('translated_text', 'Translation failed.')

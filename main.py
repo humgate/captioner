@@ -1,11 +1,13 @@
 import subprocess
 
+from dotenv import load_dotenv
+
 from util import *
 
 prompts_dir = "prompts"
 captioning_model = 'llava:13b'
 translate_model = 'llama3.1:latest'
-system_prompt, captioning_prompt, translate_prompt = load_prompts(prompts_dir)
+system_prompt, captioning_prompt = load_prompts(prompts_dir)
 google_translate_destination = 'ru'
 
 
@@ -59,9 +61,6 @@ with gr.Blocks() as caption_ui:
         )
         captioning_prompt_box = gr.Textbox(
             interactive=True, lines=10, label="Captioning prompt", value=captioning_prompt
-        )
-        translate_prompt_box = gr.Textbox(
-            interactive=True, lines=10, label="Translation prompt", value=translate_prompt
         )
         save_prompts_button = gr.Button("Save prompts")
     with gr.Tab("Settings"):
@@ -119,8 +118,8 @@ with gr.Blocks() as caption_ui:
     )
 
     save_prompts_button.click(
-        fn=lambda system, captioning, translation: save_prompts(prompts_dir, system, captioning, translation),
-        inputs=[system_prompt_box, captioning_prompt_box, translate_prompt_box]
+        fn=lambda system, captioning: save_prompts(prompts_dir, system, captioning),
+        inputs=[system_prompt_box, captioning_prompt_box]
     )
 
     save_caption_button.click(
@@ -148,6 +147,7 @@ with gr.Blocks() as caption_ui:
     )
 
 if __name__ == '__main__':
+    load_dotenv()
     flask_process = subprocess.Popen(['python', 'flask_translate_service.py'])
     try:
         caption_ui.launch()
