@@ -49,7 +49,8 @@ with gr.Blocks() as caption_ui:
                 edited_caption_box = gr.Textbox(
                     interactive=True, lines=3, label="Edited caption", info="Shift + Enter to translate"
                 )
-                translated_caption_box = gr.Textbox(interactive=True, lines=3, label="Translated caption")
+                translated_caption_box = gr.Textbox(
+                    interactive=True, lines=3, label="Translated caption", info="Shift + Enter to translate back" )
                 save_caption_button = gr.Button("Save caption")
                 alert_box = gr.Markdown()
                 with gr.Row():
@@ -144,6 +145,12 @@ with gr.Blocks() as caption_ui:
         fn=translate_with_deep_translator_service,
         inputs=[edited_caption_box, translate_dest_box],
         outputs=translated_caption_box
+    )
+
+    translated_caption_box.submit(
+        fn=translate_back_to_en_with_deep_translator_service,
+        inputs=translated_caption_box,
+        outputs=edited_caption_box
     )
 
 if __name__ == '__main__':

@@ -107,3 +107,8 @@ def translate_with_deep_translator_service(text, target_language):
     flask_url = f"http://localhost:{os.getenv('FLASK_PORT', '5000')}/translate"
     response = requests.post(flask_url, json={'text': text}, params={'dest_lang': target_language})
     return response.json().get('translated_text', 'Translation failed.')
+
+def translate_back_to_en_with_deep_translator_service(text):
+    flask_url = f"http://localhost:{os.getenv('FLASK_PORT', '5000')}/translate"
+    response = requests.post(flask_url, json={'text': text}, params={'dest_lang': 'en'})
+    return response.json().get('translated_text', 'Translation failed.')
