@@ -13,10 +13,9 @@ Useful when creating captions for training datasets where manual correction is r
 - **Save caption**: Save edited captions as `.txt` files with the same name as the image.
 ## Requirements
 - Python 3.10+
-- [Gradio](https://gradio.app/) (for the UI)
-- [Ollama](https://ollama.com/) Python client (for LLaVA model integration)
+- [Ollama](https://ollama.com/) installed and running locally with a LLaVA model
 ## Install
-1. Clone the repository and
+1. Clone the repository
 2. Create and activate venv
 ```
 cd captioner
@@ -41,5 +40,6 @@ python main.py
 - Edit captions: Click "Copy for editing" to copy generated caption into edit field. Modify the generated caption 
 if necessary.
 - Translate edited caption: Shift + Enter to translate Edited caption.
+- Edit translated caption and translate it back to english: Shift + Enter to translate back edited caption.
 - Save caption: Click "Save caption" to save the caption as a .txt file in the same folder as the image.
 - Image navigation: Use the UI to navigate to the next or previous image in the directory.
