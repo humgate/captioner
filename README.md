@@ -2,6 +2,8 @@
 
 Generates image captions using the LLaVA model. Helps organize the process of creating captions for multiple images in a folder, simplifying manual correction for each image.
 Useful when creating captions for training datasets where manual correction is required.
+
+![](img.png)
 ## Features
 - **Image folder setting**: Set images folder path.
 - **Image navigation**: Navigate to next/previous image in the images folder.
