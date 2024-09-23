@@ -1,7 +1,7 @@
 # Gradio Image Captioning Tool with LLaVA
 
-Generates captions for multiple images using the LLaVA model based on Gradio UI. Useful for preparing quality captions 
-for multiple images for training datasets
+Generates image captions using the LLaVA model. Helps organize the process of creating captions for multiple images in a folder, simplifying manual correction for each image.
+Useful when creating captions for training datasets where manual correction is required.
 ## Features
 - **Image folder setting**: Set images folder path.
 - **Image navigation**: Navigate to next/previous image in the images folder.
@@ -16,12 +16,18 @@ for multiple images for training datasets
 - [Gradio](https://gradio.app/) (for the UI)
 - [Ollama](https://ollama.com/) Python client (for LLaVA model integration)
 ## Install
-1. Clone the repository
-2. Install dependencies
+1. Clone the repository and
+2. Create and activate venv
+```
+cd captioner
+python -m venv venv
+source venv/bin/activate
+```
+3. Install dependencies
 ```
 pip install -r requirements.txt`
 ```
-3. Ensure the LLaVA model is correctly set up using the Ollama Python client. The model should be accessible at the 
+4. Ensure the LLaVA model is correctly set up using the Ollama Python client. The model should be accessible at the 
 correct URL (e.g., http://localhost:11434 or your local instance).
 ## Run
 1. **Start the Gradio UI**:
